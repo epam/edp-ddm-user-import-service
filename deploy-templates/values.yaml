@@ -1,0 +1,45 @@
+name: user-import-service
+
+version: 1.1.0
+
+port: 8080
+
+service:
+  port: 8080
+
+ingress:
+  required: true
+  site: user-import-service
+
+s3:
+  config:
+    client:
+      protocol: http
+    options:
+      pathStyleAccess: true
+
+userImportCeph:
+  httpEndpoint: ${USER_IMPORT_CEPH_BUCKET_HOST}
+  bucketName: user-import
+
+image:
+  name: user-import-service
+  version: latest
+
+keycloak:
+  realms:
+    officer: officer-portal
+    citizen: citizen-portal
+    admin: admin
+  certificatesEndpoint: /protocol/openid-connect/certs
+
+probes:
+  liveness:
+    path: /actuator/health/liveness
+  readiness:
+    path: /actuator/health/readiness
+
+monitoring:
+  namespace: openshift-monitoring
+  prometheusScrapePath: /actuator/prometheus
+  jobLabel: app
